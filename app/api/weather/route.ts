@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const city = searchParams.get('city');
-  const apiKey = process.env.OPENWEATHER_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
 
   if (!city) {
     return NextResponse.json({ error: 'City is required' }, { status: 400 });
