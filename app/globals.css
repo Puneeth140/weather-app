@@ -1,26 +1,166 @@
-@import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --bg-color: #0d0221;
+    --text-main: #e0e0e0;
+    --neon-main: #00f3ff; /* Default Cyan */
+    --neon-secondary: #ff00ff; /* Pink for contrast */
+    --bg-accent: rgba(0, 243, 255, 0.05);
+    transition: --neon-main 0.8s ease, --bg-accent 0.8s ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+#__next, .main-wrapper {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+
+/* GLOBAL STYLES */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Playpen Sans', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.5s ease; /* Smooth theme transition */
 }
+
+/* UI COMPONENTS */
+.container {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    color: var(--neon-main);
+    text-shadow: 0 0 10px var(--neon-main);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    transition: all 0.5s ease;
+}
+
+.weather-card {
+    padding: 30px;
+    border: 1px solid var(--neon-main);
+    background: var(--bg-accent);
+    box-shadow: 0 0 20px var(--bg-accent);
+    backdrop-filter: blur(8px);
+    position: relative;
+    transition: all 0.5s ease;
+}
+
+/* WEATHER THEMES */
+.weather-clear {
+    --neon-main: #ffae00; 
+    --bg-accent: rgba(255, 174, 0, 0.1);
+    background: radial-gradient(circle at 90% 10%, rgba(255, 174, 0, 0.2) 0%, var(--bg-color) 60%) !important;
+}
+
+.weather-rain, .weather-drizzle {
+    --neon-main: #0077ff;
+    --bg-accent: rgba(0, 119, 255, 0.1);
+}
+
+.weather-clouds, .weather-mist, .weather-haze {
+    --neon-main: #94fbff;
+    --bg-accent: rgba(148, 251, 255, 0.1);
+}
+
+.weather-thunderstorm {
+    --neon-main: #be00ff;
+    --bg-accent: rgba(190, 0, 255, 0.1);
+    animation: thunder-flash 4s infinite;
+}
+
+/* Apply Heat Haze only when clear */
+.weather-clear .weather-card {
+    animation: heat-haze 3s ease-in-out infinite;
+}
+
+.weather-card, h1, button, input {
+    transition: all 0.8s ease-in-out;
+}
+
+
+input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--neon-main);
+    padding: 12px;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    width: 100%;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+button {
+    background: var(--neon-main);
+    color: var(--bg-color);
+    border: none;
+    padding: 12px 25px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    box-shadow: 0 0 15px var(--neon-main);
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+button:hover { transform: scale(1.05); }
+
+.temp {
+    font-size: 4rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-secondary);
+    text-shadow: 0 0 15px var(--neon-secondary);
+}
+
+/* VISUAL EFFECTS */
+#weather-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.scanline {
+    width: 100%;
+    height: 10px;
+    z-index: 11;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.03), transparent);
+    position: absolute;
+    left: 0;
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+}
+
+/* ANIMATIONS */
+@keyframes scanline {
+    0% { top: -10%; }
+    100% { top: 110%; }
+}
+
+@keyframes heat-haze {
+    0%, 100% { filter: blur(0px); transform: skew(0deg); }
+    50% { filter: blur(1px); transform: skew(1deg); }
+}
+
+@keyframes thunder-flash {
+    0%, 95%, 98%, 100% { background-color: transparent; }
+    96%, 99% { background-color: rgba(255, 255, 255, 0.1); }
+}
+

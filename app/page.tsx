@@ -1,65 +1,93 @@
-import Image from "next/image";
+'use client';
+import { useState } from 'react';
+import WeatherEffects from './components/WeatherEffects';
+import DigitalClock from './components/DigitalClock';
 
-export default function Home() {
+interface WeatherData {
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: Array<{
+    main: string;
+    description: string;
+  }>;
+  name: string;
+  cod: number;
+}
+//Weather DashBoard
+export default function WeatherDashboard() {
+  const [accentColor, setAccentColor] = useState('#00f3ff');
+  const [city, setCity] = useState('');
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [theme, setTheme] = useState('');
+  
+  const fetchWeather = async () => {
+  if (!city) return;
+  
+  try {
+    const res = await fetch(`/api/weather?city=${city}`);
+    const data = await res.json();
+    
+    if (data.cod === 200) {
+      setWeather(data);
+      const mainWeather = data.weather[0].main.toLowerCase();
+      setTheme(`weather-${mainWeather}`);
+      const weatherMain = data.weather[0].main.toLowerCase();
+    if (mainWeather === 'clear') {
+      setAccentColor('#ffae00');
+    } else if (mainWeather === 'thunderstorm') {
+      setAccentColor('#be00ff');
+    } else if (mainWeather.includes('rain') || mainWeather.includes('drizzle')) {
+      setAccentColor('#0077ff');
+    } else if (mainWeather === 'clouds' || mainWeather === 'mist' || mainWeather === 'haze') {
+      setAccentColor('#94fbff');
+    } else {
+      //Default Color
+      setAccentColor('#00f3ff');
+    }  
+    } 
+    else {
+      alert("CITY NOT FOUND IN DATABASE.");
+    }
+  } catch (err) {
+    console.error("System Error:", err);
+  }
+  
+};
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={`main-wrapper ${theme}`}>
+      <DigitalClock/>
+      <WeatherEffects theme={theme} color={accentColor}/>
+      {/* Scanline Effect */}
+      <div className="scanline"></div>
+      
+      {/* Particle Canvas */}
+      <canvas id="weather-canvas"></canvas>
+
+      <div className="container">
+        <h1 className="orbitron">NEURAL-WEATHER</h1>
+        
+        <div className="weather-card">
+          <input 
+            type="text" 
+            placeholder="ENTER CITY..." 
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <button onClick={fetchWeather}>INITIALIZE SCAN</button>
+
+          {weather && (
+            <div className="weather-info">
+              <p className="temp">{Math.round(weather.main.temp)}°C</p>
+              <p style={{ color: 'var(--neon-main)', letterSpacing: '2px' }}>
+                {weather.weather[0].description.toUpperCase()}
+              </p>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
